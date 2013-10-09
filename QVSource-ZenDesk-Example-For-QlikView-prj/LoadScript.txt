@@ -1,0 +1,171 @@
+﻿///$tab Change Log
+/*
+1.0.0 - 09/10/13
+----------------
+* Initial Release
+*/
+///$tab Helper Functions
+Sub urlEncode(str)
+ 
+    let str=replace(str, '%', '%25'); // should be first
+    let str=replace(str, '#', '%23');
+    let str=replace(str, ' ', '%20');
+    let str=replace(str, '$', '%24');
+    let str=replace(str, '&', '%26');
+    let str=replace(str, '+', '%2B');
+    let str=replace(str, ',', '%2C');
+    let str=replace(str, '/', '%2F');
+    let str=replace(str, '\', '%5C');
+    let str=replace(str, ':', '%3A');
+    let str=replace(str, ';', '%3B');
+    let str=replace(str, '=', '%3D');
+    let str=replace(str, '?', '%3F');
+    let str=replace(str, '@', '%40');
+    let str=replace(str, '[', '%5B');
+    let str=replace(str, ']', '%5D');
+    let str=replace(str, '>', '%3E');
+    let str=replace(str, '<', '%3C');
+    let str=replace(str, chr(39), '%27');
+     
+    call=str;
+         
+End sub
+///$tab ZenDesk
+SET ThousandSep=',';
+SET DecimalSep='.';
+SET MoneyThousandSep=',';
+SET MoneyDecimalSep='.';
+SET MoneyFormat='£#,##0.00;-£#,##0.00';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='DD/MM/YYYY';
+SET TimestampFormat='DD/MM/YYYY hh:mm:ss[.fff]';
+SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
+SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
+
+//
+//Replace the [TOKENS] with your details or create a file name credentials.txt with the three variables below in.
+//
+if isnull(filesize('credentials.txt')) then
+	let vUserName = '[YOUR_USERNAME]';
+	let vPasswordEncrypted = '[YOUR_ENCRYPTED_PASSWORD]';
+	let vZenDeskDomain = '[YOUR_SUBDOMAIN]';	
+else
+	$(include=credentials.txt);
+endif
+
+// If you want to just debug with a couple of pages of data set this value.
+set vMaxPages = -1;
+
+// This will be the URL to the first page of results.
+let vTicketsURL = 'https://$(vZenDeskDomain).zendesk.com/api/v2/tickets.json';
+let vRowNumber = 1;
+set errormode = 0;
+
+// We will create a table containing the URLs of all the pages of tickets
+// and then  loop through this later to retrieve the actual tickets.
+ZenDesk_TicketPages:
+LOAD * INLINE [
+ZenDesk_Tickets_page, ZenDesk_Tickets_url
+1, '$(vTicketsURL)'
+];
+
+do while (IsNull(vTicketsURL) = 0)
+
+	let vTicketsURLToUse = 	vTicketsURL;	
+	let vTicketsURL = '';
+	
+	ZenDesk_TicketPages:
+	LOAD
+		1 + $(vRowNumber) as ZenDesk_Tickets_page,
+		#text as ZenDesk_Tickets_url
+	FROM
+	[http://localhost:5555/QVSource/WebConnectorV2/?table=JsonToTable&appID=&verb=GET&url=$(vTicketsURLToUse)&xpath=DATA%2fnext_page&UserName=$(vUserName)&PasswordEncrypted=$(vPasswordEncrypted)]
+	(qvx);
+
+	let vTicketsURL = peek('ZenDesk_Tickets_url', vRowNumber, 'ZenDesk_TicketPages');
+	
+	let vRowNumber = vRowNumber + 1;
+	
+	if(vMaxPages > -1 and vRowNumber > vMaxPages - 1) then 
+		exit do;
+	endif
+			
+loop
+
+set errormode = 1;
+
+// Now we have a table with the URL of each page of tickets (100 at a time) 
+// we can loop through this to get the actual tickets.
+LET noRows = NoOfRows('ZenDesk_TicketPages');
+
+for i=0 to $(noRows)-1
+
+	let vURL = peek('ZenDesk_Tickets_url',$(i),'ZenDesk_TicketPages');
+	
+	call urlEncode(vURL);
+
+	ZenDesk_Tickets:
+	LOAD
+		url as ZenDesk_Ticket_url,
+		id as ZenDesk_Ticket_id,
+		external_id as ZenDesk_Ticket_external_id,
+		via_channel as ZenDesk_Ticket_via_channel,
+		via_source_from as ZenDesk_Ticket_via_source_from,
+		via_source_to as ZenDesk_Ticket_via_source_to,
+		via_source_rel as ZenDesk_Ticket_via_source_rel,
+		created_at as ZenDesk_Ticket_created_at,
+		updated_at as ZenDesk_Ticket_updated_at,
+		type as ZenDesk_Ticket_type,
+		subject as ZenDesk_Ticket_subject,
+		description as ZenDesk_Ticket_description,
+		priority as ZenDesk_Ticket_priority,
+		status as ZenDesk_Ticket_status,
+		recipient as ZenDesk_Ticket_recipient,
+		requester_id as ZenDesk_Ticket_requester_id,
+		submitter_id as ZenDesk_Ticket_submitter_id,
+		assignee_id as ZenDesk_Ticket_assignee_id,
+		organization_id as ZenDesk_Ticket_organization_id,
+		group_id as ZenDesk_Ticket_group_id,
+		collaborator_ids as ZenDesk_Ticket_collaborator_ids,
+		forum_topic_id as ZenDesk_Ticket_forum_topic_id,
+		problem_id as ZenDesk_Ticket_problem_id,
+		has_incidents as ZenDesk_Ticket_has_incidents,
+		due_at as ZenDesk_Ticket_due_at,
+		tags as ZenDesk_Ticket_tags,
+		custom_fields_id as ZenDesk_Ticket_custom_fields_id,
+		custom_fields_value as ZenDesk_Ticket_custom_fields_value,
+		satisfaction_rating as ZenDesk_Ticket_satisfaction_rating,
+		fields_id as ZenDesk_Ticket_fields_id,
+		fields_value as ZenDesk_Ticket_fields_value//,
+		//followup_ids as ZenDesk_Ticket_followup_ids // THIS IS NOT PRESENT FOR ALL TICKETS SO LEAVE OUT OTHERWISE WE GET A LOAD ERROR
+	FROM
+	[http://localhost:5555/QVSource/WebConnectorV2/?table=JsonToTable&appID=&verb=GET&url=$(vURL)&xpath=DATA%2ftickets&UserName=$(vUserName)&PasswordEncrypted=$(vPasswordEncrypted)]
+	(qvx);
+	
+next
+
+store ZenDesk_Tickets into QVDs\ZenDesk_Tickets.qvd (qvd);
+
+drop table ZenDesk_Tickets;
+
+// Lets pretend the above is an app simply for generating QVD files which 
+// we then load into another app, with some additional calculated fields.
+
+ZenDesk_Tickets:
+load
+*,
+timestamp#(ZenDesk_Ticket_created_at, 'YYYY-MM-DDThh:mm:ssZ') as ZenDesk_Ticket_created_at_QVTimestamp,
+time#(mid(ZenDesk_Ticket_created_at,12,  8), 'hh:mm:ss') as ZenDesk_Ticket_created_at_QVTime,
+date#(left(ZenDesk_Ticket_created_at, 10), 'YYYY-MM-DD') as ZenDesk_Ticket_created_at_QVDate,
+timestamp#(ZenDesk_Ticket_updated_at, 'YYYY-MM-DDThh:mm:ssZ') as ZenDesk_Ticket_updated_at_QVTimestamp,
+date#(left(ZenDesk_Ticket_updated_at, 10), 'YYYY-MM-DD') as ZenDesk_Ticket_updated_at_QVDate,
+time#(mid(ZenDesk_Ticket_updated_at,12, 8), 'hh:mm:ss') as ZenDesk_Ticket_updated_at_QVTime
+from QVDs\ZenDesk_Tickets.qvd (qvd);
+///$tab Clean Up
+let vUserName = '';
+let vPasswordEncrypted = '';
+let vZenDeskDomain = '';
+let vURL = '';
+let vTicketsURLToUse = '';	
+let vTicketsURL = '';
+let call = '';
