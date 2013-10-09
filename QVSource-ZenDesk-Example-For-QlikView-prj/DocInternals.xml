@@ -168,19 +168,19 @@
           </TableViewTableWinSaveInfo>
           <TableViewTableWinSaveInfo>
             <Pos>
-              <Left>963</Left>
-              <Top>555</Top>
-              <Width>263</Width>
+              <Left>993</Left>
+              <Top>588</Top>
+              <Width>211</Width>
               <Height>64</Height>
             </Pos>
             <Caption>ZenDesk_TicketPages</Caption>
           </TableViewTableWinSaveInfo>
           <TableViewTableWinSaveInfo>
             <Pos>
-              <Left>455</Left>
-              <Top>292</Top>
+              <Left>476</Left>
+              <Top>174</Top>
               <Width>405</Width>
-              <Height>208</Height>
+              <Height>562</Height>
             </Pos>
             <Caption>ZenDesk_Tickets</Caption>
           </TableViewTableWinSaveInfo>
