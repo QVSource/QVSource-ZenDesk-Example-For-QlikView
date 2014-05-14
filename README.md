@@ -12,6 +12,13 @@ If you are a QlikView + QVSource user you can simply click the ["Download ZIP"] 
 
 The content below is copied from the change log in the first tab of the load script.
 
+1.0.2 - 14/05/14
+----------------
+* Added additional comments to credential section.
+* Renamed some variables for clarity.
+* Now caches API response for an hour (optional line to uncomment which will clear the cache).
+* Moved QVSource URL into variable vRoot.
+
 1.0.1 - 04/12/13
 ----------------
 * Added badge.

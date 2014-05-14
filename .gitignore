@@ -1,6 +1,7 @@
 # qlikview
 credentials.txt
 *.qvd
+*.log
 
 # Build and Object Folders
 bin/

@@ -1,5 +1,12 @@
 ﻿///$tab Change Log
 /*
+1.0.2 - 14/05/14
+----------------
+* Added additional comments to credential section.
+* Renamed some variables for clarity.
+* Now caches API response for an hour (optional line to uncomment which will clear the cache).
+* Moved QVSource URL into variable vRoot.
+
 1.0.1 - 04/12/13
 ----------------
 * Added badge.
@@ -8,6 +15,39 @@
 ----------------
 * Initial Release
 */
+///$tab Config
+//
+// EITHER
+// Replace the [TOKENS] below with your details
+// OR
+// create a file name credentials.txt with the three variables below in.
+//
+if isnull(filesize('credentials.txt')) then
+	//
+	// Note - as per the ZenDesk API:
+	// https://qvsource.zendesk.com/agent/#/admin/api
+	// This should be something like:
+	// user@domain.com/token
+	//
+	let vUserName = '[YOUR_USERNAME]';
+	
+	//
+	// You must encrypt your API ket first in the connector - make a sample
+	// request e.g. to:
+	// https://[YOUR_SUBDOMAIN].zendesk.com/api/v2/tickets.json
+	// and set the username to the above and the password to your API key at:
+	// https://qvsource.zendesk.com/agent/#/admin/api
+	// Then copy the encrypted password to here.
+	//
+	let vEncryptedAPIKey = '[YOUR_ENCRYPTED_API_KEY]';
+	
+	let vZenDeskDomain = '[YOUR_SUBDOMAIN]';	
+else
+	$(include=credentials.txt);
+endif
+
+let vCacheTimeInHours = 1;
+let vRoot = 'http://localhost:5555/QVSource/WebConnectorV2/';
 ///$tab Helper Functions
 Sub urlEncode(str)
  
@@ -34,6 +74,19 @@ Sub urlEncode(str)
     call=str;
          
 End sub
+
+sub clearZenDeskCache
+
+	ClearCache:
+	LOAD
+	QVSource_ClearCache_Result,
+	QVSource_ClearCache_SearchPattern,
+	QVSource_ClearCache_NoItemsDeleted
+	FROM
+	[$(vRoot)?clearcache=true]
+	(txt, utf8, embedded labels, delimiter is '\t', msq); 
+	
+end sub
 ///$tab ZenDesk
 SET ThousandSep=',';
 SET DecimalSep='.';
@@ -47,15 +100,11 @@ SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
 SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
 
 //
-//Replace the [TOKENS] with your details or create a file name credentials.txt with the three variables below in.
+// Uncomment this if you wish to clear the cache manually.
+// Otherwise results from ZenDesk will be cached for 
+// vCacheTimeInHours hours.
 //
-if isnull(filesize('credentials.txt')) then
-	let vUserName = '[YOUR_USERNAME]';
-	let vPasswordEncrypted = '[YOUR_ENCRYPTED_PASSWORD]';
-	let vZenDeskDomain = '[YOUR_SUBDOMAIN]';	
-else
-	$(include=credentials.txt);
-endif
+// call clearZenDeskCache
 
 // If you want to just debug with a couple of pages of data set this value.
 set vMaxPages = -1;
@@ -83,7 +132,7 @@ do while (IsNull(vTicketsURL) = 0)
 		1 + $(vRowNumber) as ZenDesk_Tickets_page,
 		#text as ZenDesk_Tickets_url
 	FROM
-	[http://localhost:5555/QVSource/WebConnectorV2/?table=JsonToTable&appID=&verb=GET&url=$(vTicketsURLToUse)&xpath=DATA%2fnext_page&UserName=$(vUserName)&PasswordEncrypted=$(vPasswordEncrypted)]
+	[$(vRoot)?table=JsonToTable&appID=&verb=GET&url=$(vTicketsURLToUse)&xpath=DATA%2fnext_page&UserName=$(vUserName)&PasswordEncrypted=$(vEncryptedAPIKey)&cacheTimeInHours=$(vCacheTimeInHours)]
 	(qvx);
 
 	let vTicketsURL = peek('ZenDesk_Tickets_url', vRowNumber, 'ZenDesk_TicketPages');
@@ -143,7 +192,7 @@ for i=0 to $(noRows)-1
 		fields_value as ZenDesk_Ticket_fields_value//,
 		//followup_ids as ZenDesk_Ticket_followup_ids // THIS IS NOT PRESENT FOR ALL TICKETS SO LEAVE OUT OTHERWISE WE GET A LOAD ERROR
 	FROM
-	[http://localhost:5555/QVSource/WebConnectorV2/?table=JsonToTable&appID=&verb=GET&url=$(vURL)&xpath=DATA%2ftickets&UserName=$(vUserName)&PasswordEncrypted=$(vPasswordEncrypted)]
+	[$(vRoot)?table=JsonToTable&appID=&verb=GET&url=$(vURL)&xpath=DATA%2ftickets&UserName=$(vUserName)&PasswordEncrypted=$(vEncryptedAPIKey)&cacheTimeInHours=$(vCacheTimeInHours)]
 	(qvx);
 	
 next
@@ -167,7 +216,7 @@ time#(mid(ZenDesk_Ticket_updated_at,12, 8), 'hh:mm:ss') as ZenDesk_Ticket_update
 from QVDs\ZenDesk_Tickets.qvd (qvd);
 ///$tab Clean Up
 let vUserName = '';
-let vPasswordEncrypted = '';
+let vEncryptedAPIKey = '';
 let vZenDeskDomain = '';
 let vURL = '';
 let vTicketsURLToUse = '';	
