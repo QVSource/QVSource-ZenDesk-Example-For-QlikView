@@ -12,6 +12,10 @@ If you are a QlikView + QVSource user you can simply click the ["Download ZIP"] 
 
 The content below is copied from the change log in the first tab of the load script.
 
+1.0.3 - 07/09/15
+----------------
+* Added empty QVDs folder.
+
 1.0.2 - 14/05/14
 ----------------
 * Added additional comments to credential section.
