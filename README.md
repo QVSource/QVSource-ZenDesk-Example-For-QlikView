@@ -2,6 +2,8 @@ ZenDesk Example App For QlikView
 ================================
 An example application showing how to get started using the [QVSource General Web Connector](http://wiki.qvsource.com/General-Web-Connector-For-QlikView.ashx) for QlikView configured for the ZenDesk API.
 
+*Note that the [load script](https://github.com/QVSource/QVSource-ZenDesk-Example-For-QlikView/blob/master/QVSource-ZenDesk-Example-For-QlikView-prj/LoadScript.txt) should also work in Qlik Sense.*
+
 This demo currently pages through all the tickets in ZenDesk and loads some of the basic data for each and then stores the results into a QVD file.
 
 Suggested improvements include:
