@@ -33,15 +33,19 @@ if isnull(filesize('credentials.txt')) then
 	// This should be something like:
 	// user@domain.com/token
 	//
-	let vUserName = '[YOUR_USERNAME]';
+	let vUserName = '[YOUR_USERNAME]'; // DONT FORGET this should end with /token
 	
 	//
-	// You must encrypt your API ket first in the connector - make a sample
-	// request e.g. to:
+	// You must encrypt your API ket first in the connector - to do this,
+	// IN QVSOURce make a sample GET request e.g. to:
+	//
 	// https://[YOUR_SUBDOMAIN].zendesk.com/api/v2/tickets.json
-	// and set the username to the above and the password to your API key at:
+	//
+	// First seting the username to the above and the password to your API key at:
 	// https://qvsource.zendesk.com/agent/#/admin/api
-	// Then copy the encrypted password to here.
+	// 
+	// Then copy the encrypted password (i.e. the value of the PasswordEncrypted parameter 
+	// in the generated load URL) to here.
 	//
 	let vEncryptedAPIKey = '[YOUR_ENCRYPTED_API_KEY]';
 	
