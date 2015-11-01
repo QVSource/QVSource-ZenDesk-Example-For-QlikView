@@ -1,5 +1,13 @@
 ﻿///$tab Change Log
 /*
+1.0.4 - 01/11/15
+----------------
+* Switched to using the Zendesk Incremental API (https://developer.zendesk.com/rest_api/docs/core/incremental_export#tickets) which is recommended 'To get a list of all tickets in your account' (see here - https://developer.zendesk.com/rest_api/docs/core/tickets#listing-tickets).
+* Also switched to using the JsonToXmlRaw table which makes it easier to get all the data in a single request.
+* Removed reference to an external credentials.txt file.
+* Added a MonthYear dimension.
+* Added variables to set load access token (for QVSource Web Edition) and app ID.
+
 1.0.3 - 07/09/15
 ----------------
 * Added empty QVDs folder.
@@ -20,42 +28,58 @@
 * Initial Release
 */
 ///$tab Config
-//
-// EITHER
-// Replace the [TOKENS] below with your details
-// OR
-// create a file name credentials.txt with the three variables below in.
-//
-if isnull(filesize('credentials.txt')) then
-	//
-	// Note - as per the ZenDesk API:
-	// https://qvsource.zendesk.com/agent/#/admin/api
-	// This should be something like:
-	// user@domain.com/token
-	//
-	let vUserName = '[YOUR_USERNAME]'; // DONT FORGET this should end with /token
-	
-	//
-	// You must encrypt your API ket first in the connector - to do this,
-	// IN QVSOURce make a sample GET request e.g. to:
-	//
-	// https://[YOUR_SUBDOMAIN].zendesk.com/api/v2/tickets.json
-	//
-	// First seting the username to the above and the password to your API key at:
-	// https://qvsource.zendesk.com/agent/#/admin/api
-	// 
-	// Then copy the encrypted password (i.e. the value of the PasswordEncrypted parameter 
-	// in the generated load URL) to here.
-	//
-	let vEncryptedAPIKey = '[YOUR_ENCRYPTED_API_KEY]';
-	
-	let vZenDeskDomain = '[YOUR_SUBDOMAIN]';	
-else
-	$(include=credentials.txt);
-endif
+SET ThousandSep=',';
+SET DecimalSep='.';
+SET MoneyThousandSep=',';
+SET MoneyDecimalSep='.';
+SET MoneyFormat='£#,##0.00;-£#,##0.00';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='DD/MM/YYYY';
+SET TimestampFormat='DD/MM/YYYY hh:mm:ss[.fff]';
+SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
+SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
 
+//
+// Note - as per the ZenDesk API:
+// https://qvsource.zendesk.com/agent/#/admin/api
+// This should be something like:
+// user@domain.com/token
+//
+let vUserName = 'yourusername@yourdomain.com/token'; // DONT FORGET this should end with /token
+
+//
+// You must encrypt your API ket first in the connector - to do this,
+// IN QVSOURce make a sample GET request e.g. to:
+//
+// https://{YOUR ZENDESK SUBDOMAIN}.zendesk.com/api/v2/tickets.json
+//
+// First seting the username to the above and the password to your API key at:
+// https://{YOUR ZENDESK SUBDOMAIN}.zendesk.com/agent/#/admin/api
+// 
+// Then copy the encrypted password (i.e. the value of the PasswordEncrypted parameter 
+// in the generated load URL) to here.
+//
+let vEncryptedAPIKey = '{READ NOTES ABOVE ABOUT HOW TO GET THIS}';
+
+let vZenDeskDomain = '{YOUR ZENDESK SUBDOMAIN}';	
+
+//
+// Request QVSource to cache the response from the Zendesk API for this many hours.
+// This will improve load times, particularly while you are making changes to the 
+// application and going through and edit, reload, review cycle.
+//
 let vCacheTimeInHours = 1;
+
 let vRoot = 'http://localhost:5555/QVSource/WebConnectorV2/';
+
+// This could be &loadAccessToken=1a2b3c4d for QVSource web edition.
+LET vLoadAccessToken = '';
+
+// You can set this to your own app name.
+LET vQVSourceAppId = 'Zendesk_App_For_Qlik';
+
+// If you want to just debug with a couple of pages of data set this value.
+set vMaxPages = -1;
 ///$tab Helper Functions
 Sub urlEncode(str)
  
@@ -95,17 +119,8 @@ sub clearZenDeskCache
 	(txt, utf8, embedded labels, delimiter is '\t', msq); 
 	
 end sub
-///$tab ZenDesk
-SET ThousandSep=',';
-SET DecimalSep='.';
-SET MoneyThousandSep=',';
-SET MoneyDecimalSep='.';
-SET MoneyFormat='£#,##0.00;-£#,##0.00';
-SET TimeFormat='hh:mm:ss';
-SET DateFormat='DD/MM/YYYY';
-SET TimestampFormat='DD/MM/YYYY hh:mm:ss[.fff]';
-SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
-SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
+///$tab Zendesk (Build List Of URLs)
+let vCredentials = 'UserName=$(vUserName)&PasswordUnEncrypted=$(vEncryptedAPIKey)';
 
 //
 // Uncomment this if you wish to clear the cache manually.
@@ -114,13 +129,9 @@ SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
 //
 // call clearZenDeskCache
 
-// If you want to just debug with a couple of pages of data set this value.
-set vMaxPages = -1;
-
 // This will be the URL to the first page of results.
-let vTicketsURL = 'https://$(vZenDeskDomain).zendesk.com/api/v2/tickets.json';
+let vTicketsURL = 'https://$(vZenDeskDomain).zendesk.com/api/v2/incremental/tickets.json?start_time=0';
 let vRowNumber = 1;
-set errormode = 0;
 
 // We will create a table containing the URLs of all the pages of tickets
 // and then  loop through this later to retrieve the actual tickets.
@@ -129,6 +140,8 @@ LOAD * INLINE [
 ZenDesk_Tickets_page, ZenDesk_Tickets_url
 1, '$(vTicketsURL)'
 ];
+
+set errormode = 0;
 
 do while (IsNull(vTicketsURL) = 0)
 
@@ -140,10 +153,16 @@ do while (IsNull(vTicketsURL) = 0)
 		1 + $(vRowNumber) as ZenDesk_Tickets_page,
 		#text as ZenDesk_Tickets_url
 	FROM
-	[$(vRoot)?table=JsonToTable&appID=&verb=GET&url=$(vTicketsURLToUse)&xpath=DATA%2fnext_page&UserName=$(vUserName)&PasswordEncrypted=$(vEncryptedAPIKey)&cacheTimeInHours=$(vCacheTimeInHours)]
+	[$(vRoot)?table=JsonToTable&appID=&verb=GET&url=$(vTicketsURLToUse)&xpath=DATA%2fnext_page&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]
 	(qvx);
 
 	let vTicketsURL = peek('ZenDesk_Tickets_url', vRowNumber, 'ZenDesk_TicketPages');
+	
+	if(vTicketsURL = vPrevious) then
+		exit do;
+	endif
+	
+	let vPrevious = vTicketsURL;
 	
 	let vRowNumber = vRowNumber + 1;
 	
@@ -155,58 +174,99 @@ loop
 
 set errormode = 1;
 
-// Now we have a table with the URL of each page of tickets (100 at a time) 
-// we can loop through this to get the actual tickets.
-LET noRows = NoOfRows('ZenDesk_TicketPages');
+DistinctURLs:
+load distinct
+ZenDesk_Tickets_url as PageOfResultsUrl
+resident ZenDesk_TicketPages;
 
+drop table ZenDesk_TicketPages;
+///$tab Zendesk (Load Data)
+//
+// Now we have a table with the URL of each page of tickets 
+// we can loop through this to get the actual tickets.
+//
+LET noRows = NoOfRows('DistinctURLs');
+	
 for i=0 to $(noRows)-1
 
-	let vURL = peek('ZenDesk_Tickets_url',$(i),'ZenDesk_TicketPages');
+	let vURL = peek('PageOfResultsUrl',$(i),'DistinctURLs');
+	
+	trace 'About to request $(vURL)';
 	
 	call urlEncode(vURL);
-
-	ZenDesk_Tickets:
-	LOAD
-		url as ZenDesk_Ticket_url,
-		id as ZenDesk_Ticket_id,
-		external_id as ZenDesk_Ticket_external_id,
-		via_channel as ZenDesk_Ticket_via_channel,
-		via_source_from as ZenDesk_Ticket_via_source_from,
-		via_source_to as ZenDesk_Ticket_via_source_to,
-		via_source_rel as ZenDesk_Ticket_via_source_rel,
-		created_at as ZenDesk_Ticket_created_at,
-		updated_at as ZenDesk_Ticket_updated_at,
-		type as ZenDesk_Ticket_type,
-		subject as ZenDesk_Ticket_subject,
-		description as ZenDesk_Ticket_description,
-		priority as ZenDesk_Ticket_priority,
-		status as ZenDesk_Ticket_status,
-		recipient as ZenDesk_Ticket_recipient,
-		requester_id as ZenDesk_Ticket_requester_id,
-		submitter_id as ZenDesk_Ticket_submitter_id,
-		assignee_id as ZenDesk_Ticket_assignee_id,
-		organization_id as ZenDesk_Ticket_organization_id,
-		group_id as ZenDesk_Ticket_group_id,
-		collaborator_ids as ZenDesk_Ticket_collaborator_ids,
-		forum_topic_id as ZenDesk_Ticket_forum_topic_id,
-		problem_id as ZenDesk_Ticket_problem_id,
-		has_incidents as ZenDesk_Ticket_has_incidents,
-		due_at as ZenDesk_Ticket_due_at,
-		tags as ZenDesk_Ticket_tags,
-		custom_fields_id as ZenDesk_Ticket_custom_fields_id,
-		custom_fields_value as ZenDesk_Ticket_custom_fields_value,
-		satisfaction_rating as ZenDesk_Ticket_satisfaction_rating,
-		fields_id as ZenDesk_Ticket_fields_id,
-		fields_value as ZenDesk_Ticket_fields_value//,
-		//followup_ids as ZenDesk_Ticket_followup_ids // THIS IS NOT PRESENT FOR ALL TICKETS SO LEAVE OUT OTHERWISE WE GET A LOAD ERROR
-	FROM
-	[$(vRoot)?table=JsonToTable&appID=&verb=GET&url=$(vURL)&xpath=DATA%2ftickets&UserName=$(vUserName)&PasswordEncrypted=$(vEncryptedAPIKey)&cacheTimeInHours=$(vCacheTimeInHours)]
-	(qvx);
 	
+	//
+	// Note that at present the associated tables which Qlik generates the load script for then pointing the Wizard to the connector have been commented out.
+	//
+	
+	//	collaborator_ids:
+	//	LOAD collaborator_ids%Table,
+	//	    %Key_tickets_CD118827DB0DA346    // Key to parent table: DATA/tickets
+	//	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA/tickets/collaborator_ids]);
+	//	
+	//	tags:
+	//	LOAD tags%Table,
+	//	    %Key_tickets_CD118827DB0DA346    // Key to parent table: DATA/tickets
+	//	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA/tickets/tags]);
+	//	
+	//	followup_ids:
+	//	LOAD followup_ids%Table,
+	//	    %Key_tickets_CD118827DB0DA346    // Key to parent table: DATA/tickets
+	//	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA/tickets/followup_ids]);
+	//	
+	//	custom_fields:
+	//	LOAD id,
+	//	    value,
+	//	    %Key_tickets_CD118827DB0DA346    // Key to parent table: DATA/tickets
+	//	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA/tickets/custom_fields]);
+	//	
+	//	fields:
+	//	LOAD id,
+	//	    value,
+	//	    %Key_tickets_CD118827DB0DA346    // Key to parent table: DATA/tickets
+	//	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA/tickets/fields]);
+	
+	ZenDesk_Tickets:
+	LOAD url,
+	    id,
+	    created_at,
+	    updated_at,
+	    subject,
+	    raw_subject,
+	    description,
+	    status,
+	    recipient,
+	    requester_id,
+	    submitter_id,
+	    assignee_id,
+	    organization_id,
+	    group_id,
+	    has_incidents,
+	    brand_id,
+	    [via/channel] as channel,
+	    [via/source/rel] as rel,
+	    [via/source/to/address] as [to/address],
+	    [via/source/to/name] as [to/name],
+	    [via/source/from/address] as [from/address],
+	    [via/source/from/name] as [from/name],
+	    [via/source/from/ticket_id] as ticket_id,
+	    [via/source/from/subject] as [from/subject],
+	    %Key_DATA_FA7EABD78875BA43,    // Key to parent table: DATA
+	    %Key_tickets_CD118827DB0DA346    // Key for this table: DATA/tickets
+	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA/tickets]);
+	
+	//	DATA:
+	//	LOAD next_page,
+	//	    previous_page,
+	//	    count,
+	//	    %Key_DATA_FA7EABD78875BA43    // Key for this table: DATA
+	//	FROM [$(vRoot)?table=JsonToXmlRaw&appID=&verb=GET&url=$(vURL)&$(vCredentials)&cacheTimeInHours=$(vCacheTimeInHours)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]  (XmlSimple, Table is [DATA]);
+
 next
 
 store ZenDesk_Tickets into QVDs\ZenDesk_Tickets.qvd (qvd);
 
+//store tickets into ZenDesk_Tickets.csv (txt);
 drop table ZenDesk_Tickets;
 
 // Lets pretend the above is an app simply for generating QVD files which 
@@ -215,12 +275,13 @@ drop table ZenDesk_Tickets;
 ZenDesk_Tickets:
 load
 *,
-timestamp#(ZenDesk_Ticket_created_at, 'YYYY-MM-DDThh:mm:ssZ') as ZenDesk_Ticket_created_at_QVTimestamp,
-time#(mid(ZenDesk_Ticket_created_at,12,  8), 'hh:mm:ss') as ZenDesk_Ticket_created_at_QVTime,
-date#(left(ZenDesk_Ticket_created_at, 10), 'YYYY-MM-DD') as ZenDesk_Ticket_created_at_QVDate,
-timestamp#(ZenDesk_Ticket_updated_at, 'YYYY-MM-DDThh:mm:ssZ') as ZenDesk_Ticket_updated_at_QVTimestamp,
-date#(left(ZenDesk_Ticket_updated_at, 10), 'YYYY-MM-DD') as ZenDesk_Ticket_updated_at_QVDate,
-time#(mid(ZenDesk_Ticket_updated_at,12, 8), 'hh:mm:ss') as ZenDesk_Ticket_updated_at_QVTime
+month(date#(left(created_at, 10), 'YYYY-MM-DD')) & '/' & year(date#(left(created_at, 10), 'YYYY-MM-DD')) as MonthYear,
+timestamp#(created_at, 'YYYY-MM-DDThh:mm:ssZ') as ZenDesk_Ticket_created_at_QVTimestamp,
+time#(mid(created_at,12,  8), 'hh:mm:ss') as ZenDesk_Ticket_created_at_QVTime,
+date#(left(created_at, 10), 'YYYY-MM-DD') as ZenDesk_Ticket_created_at_QVDate,
+timestamp#(created_at, 'YYYY-MM-DDThh:mm:ssZ') as ZenDesk_Ticket_updated_at_QVTimestamp,
+date#(left(created_at, 10), 'YYYY-MM-DD') as ZenDesk_Ticket_updated_at_QVDate,
+time#(mid(created_at,12, 8), 'hh:mm:ss') as ZenDesk_Ticket_updated_at_QVTime
 from QVDs\ZenDesk_Tickets.qvd (qvd);
 ///$tab Clean Up
 let vUserName = '';
@@ -230,3 +291,5 @@ let vURL = '';
 let vTicketsURLToUse = '';	
 let vTicketsURL = '';
 let call = '';
+let vCredentials = '';
+let vLoadAccessToken = '';

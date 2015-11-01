@@ -5,24 +5,23 @@
     <bool>false</bool>
     <bool>false</bool>
     <bool>false</bool>
-    <bool>false</bool>
   </AlwaysLoose>
   <FieldSrcTables>
     <String>6</String>
     <String>1</String>
-    <String>ClearCache</String>
+    <String>DistinctURLs</String>
     <String>7</String>
     <String>1</String>
-    <String>ClearCache</String>
+    <String>ZenDesk_Tickets</String>
     <String>8</String>
     <String>1</String>
-    <String>ClearCache</String>
+    <String>ZenDesk_Tickets</String>
     <String>9</String>
     <String>1</String>
-    <String>ZenDesk_TicketPages</String>
+    <String>ZenDesk_Tickets</String>
     <String>10</String>
     <String>1</String>
-    <String>ZenDesk_TicketPages</String>
+    <String>ZenDesk_Tickets</String>
     <String>11</String>
     <String>1</String>
     <String>ZenDesk_Tickets</String>
@@ -110,30 +109,6 @@
     <String>39</String>
     <String>1</String>
     <String>ZenDesk_Tickets</String>
-    <String>40</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>41</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>42</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>43</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>44</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>45</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>46</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
-    <String>47</String>
-    <String>1</String>
-    <String>ZenDesk_Tickets</String>
   </FieldSrcTables>
   <TableViewData>
     <Pos></Pos>
@@ -151,19 +126,19 @@
           </TableViewTableWinSaveInfo>
           <TableViewTableWinSaveInfo>
             <Pos>
-              <Left>357</Left>
-              <Top>512</Top>
+              <Left>606</Left>
+              <Top>695</Top>
               <Width>378</Width>
-              <Height>190</Height>
+              <Height>100</Height>
             </Pos>
             <Caption>DATA</Caption>
           </TableViewTableWinSaveInfo>
           <TableViewTableWinSaveInfo>
             <Pos>
-              <Left>468</Left>
-              <Top>209</Top>
+              <Left>392</Left>
+              <Top>553</Top>
               <Width>249</Width>
-              <Height>100</Height>
+              <Height>82</Height>
             </Pos>
             <Caption>$Syn 1 Table</Caption>
           </TableViewTableWinSaveInfo>
@@ -178,8 +153,8 @@
           </TableViewTableWinSaveInfo>
           <TableViewTableWinSaveInfo>
             <Pos>
-              <Left>1113</Left>
-              <Top>598</Top>
+              <Left>735</Left>
+              <Top>475</Top>
               <Width>211</Width>
               <Height>64</Height>
             </Pos>
@@ -187,10 +162,10 @@
           </TableViewTableWinSaveInfo>
           <TableViewTableWinSaveInfo>
             <Pos>
-              <Left>596</Left>
-              <Top>184</Top>
+              <Left>776</Left>
+              <Top>139</Top>
               <Width>405</Width>
-              <Height>562</Height>
+              <Height>622</Height>
             </Pos>
             <Caption>ZenDesk_Tickets</Caption>
           </TableViewTableWinSaveInfo>
@@ -202,6 +177,78 @@
               <Height>82</Height>
             </Pos>
             <Caption>ClearCache</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>109</Left>
+              <Top>559</Top>
+              <Width>100</Width>
+              <Height>64</Height>
+            </Pos>
+            <Caption>collaborator_ids</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>363</Left>
+              <Top>757</Top>
+              <Width>100</Width>
+              <Height>64</Height>
+            </Pos>
+            <Caption>tags</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>267</Left>
+              <Top>282</Top>
+              <Width>100</Width>
+              <Height>64</Height>
+            </Pos>
+            <Caption>followup_ids</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>535</Left>
+              <Top>201</Top>
+              <Width>100</Width>
+              <Height>100</Height>
+            </Pos>
+            <Caption>custom_fields</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>693</Left>
+              <Top>319</Top>
+              <Width>236</Width>
+              <Height>346</Height>
+            </Pos>
+            <Caption>tickets</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>774</Left>
+              <Top>362</Top>
+              <Width>100</Width>
+              <Height>46</Height>
+            </Pos>
+            <Caption>Distinct</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>500</Left>
+              <Top>195</Top>
+              <Width>214</Width>
+              <Height>46</Height>
+            </Pos>
+            <Caption>DistinctURLs</Caption>
+          </TableViewTableWinSaveInfo>
+          <TableViewTableWinSaveInfo>
+            <Pos>
+              <Left>103</Left>
+              <Top>522</Top>
+              <Width>396</Width>
+              <Height>208</Height>
+            </Pos>
+            <Caption>ZenDesk_Tickets-1</Caption>
           </TableViewTableWinSaveInfo>
         </Tables>
         <BroomPoints></BroomPoints>
@@ -252,29 +299,19 @@
           <String>$Field</String>
           <String>$Table</String>
           <String>$Info</String>
-          <String>QVSource_ClearCache_Result</String>
-          <String>QVSource_ClearCache_SearchPattern</String>
-          <String>QVSource_ClearCache_NoItemsDeleted</String>
-          <String>ZenDesk_Tickets_url</String>
-          <String>ZenDesk_Ticket_url</String>
-          <String>ZenDesk_Ticket_external_id</String>
-          <String>ZenDesk_Ticket_via_channel</String>
-          <String>ZenDesk_Ticket_via_source_to</String>
-          <String>ZenDesk_Ticket_via_source_rel</String>
-          <String>ZenDesk_Ticket_created_at</String>
-          <String>ZenDesk_Ticket_updated_at</String>
-          <String>ZenDesk_Ticket_type</String>
-          <String>ZenDesk_Ticket_priority</String>
-          <String>ZenDesk_Ticket_status</String>
-          <String>ZenDesk_Ticket_recipient</String>
-          <String>ZenDesk_Ticket_forum_topic_id</String>
-          <String>ZenDesk_Ticket_problem_id</String>
-          <String>ZenDesk_Ticket_has_incidents</String>
-          <String>ZenDesk_Ticket_due_at</String>
-          <String>ZenDesk_Ticket_tags</String>
-          <String>ZenDesk_Ticket_custom_fields_value</String>
-          <String>ZenDesk_Ticket_satisfaction_rating</String>
-          <String>ZenDesk_Ticket_fields_value</String>
+          <String>PageOfResultsUrl</String>
+          <String>url</String>
+          <String>created_at</String>
+          <String>updated_at</String>
+          <String>status</String>
+          <String>recipient</String>
+          <String>has_incidents</String>
+          <String>channel</String>
+          <String>rel</String>
+          <String>to/address</String>
+          <String>to/name</String>
+          <String>from/address</String>
+          <String>MonthYear</String>
           <String>ZenDesk_Ticket_created_at_QVTimestamp</String>
           <String>ZenDesk_Ticket_updated_at_QVTimestamp</String>
         </FieldNames>
@@ -285,32 +322,23 @@
           <String>$Field</String>
           <String>$Table</String>
           <String>$Info</String>
-          <String>QVSource_ClearCache_Result</String>
-          <String>QVSource_ClearCache_SearchPattern</String>
-          <String>QVSource_ClearCache_NoItemsDeleted</String>
-          <String>ZenDesk_Tickets_url</String>
-          <String>ZenDesk_Ticket_url</String>
-          <String>ZenDesk_Ticket_external_id</String>
-          <String>ZenDesk_Ticket_via_channel</String>
-          <String>ZenDesk_Ticket_via_source_from</String>
-          <String>ZenDesk_Ticket_via_source_to</String>
-          <String>ZenDesk_Ticket_via_source_rel</String>
-          <String>ZenDesk_Ticket_created_at</String>
-          <String>ZenDesk_Ticket_updated_at</String>
-          <String>ZenDesk_Ticket_type</String>
-          <String>ZenDesk_Ticket_subject</String>
-          <String>ZenDesk_Ticket_description</String>
-          <String>ZenDesk_Ticket_priority</String>
-          <String>ZenDesk_Ticket_status</String>
-          <String>ZenDesk_Ticket_recipient</String>
-          <String>ZenDesk_Ticket_forum_topic_id</String>
-          <String>ZenDesk_Ticket_problem_id</String>
-          <String>ZenDesk_Ticket_has_incidents</String>
-          <String>ZenDesk_Ticket_due_at</String>
-          <String>ZenDesk_Ticket_tags</String>
-          <String>ZenDesk_Ticket_custom_fields_value</String>
-          <String>ZenDesk_Ticket_satisfaction_rating</String>
-          <String>ZenDesk_Ticket_fields_value</String>
+          <String>PageOfResultsUrl</String>
+          <String>url</String>
+          <String>created_at</String>
+          <String>updated_at</String>
+          <String>subject</String>
+          <String>raw_subject</String>
+          <String>description</String>
+          <String>status</String>
+          <String>recipient</String>
+          <String>has_incidents</String>
+          <String>channel</String>
+          <String>rel</String>
+          <String>to/address</String>
+          <String>to/name</String>
+          <String>from/address</String>
+          <String>from/subject</String>
+          <String>MonthYear</String>
           <String>ZenDesk_Ticket_created_at_QVTimestamp</String>
           <String>ZenDesk_Ticket_updated_at_QVTimestamp</String>
         </FieldNames>
@@ -321,16 +349,15 @@
           <String>$Rows</String>
           <String>$Fields</String>
           <String>$FieldNo</String>
-          <String>ZenDesk_Tickets_page</String>
-          <String>ZenDesk_Ticket_id</String>
-          <String>ZenDesk_Ticket_requester_id</String>
-          <String>ZenDesk_Ticket_submitter_id</String>
-          <String>ZenDesk_Ticket_assignee_id</String>
-          <String>ZenDesk_Ticket_organization_id</String>
-          <String>ZenDesk_Ticket_group_id</String>
-          <String>ZenDesk_Ticket_collaborator_ids</String>
-          <String>ZenDesk_Ticket_custom_fields_id</String>
-          <String>ZenDesk_Ticket_fields_id</String>
+          <String>id</String>
+          <String>requester_id</String>
+          <String>submitter_id</String>
+          <String>assignee_id</String>
+          <String>organization_id</String>
+          <String>group_id</String>
+          <String>brand_id</String>
+          <String>%Key_DATA_FA7EABD78875BA43</String>
+          <String>%Key_tickets_CD118827DB0DA346</String>
           <String>ZenDesk_Ticket_created_at_QVTime</String>
           <String>ZenDesk_Ticket_created_at_QVDate</String>
           <String>ZenDesk_Ticket_updated_at_QVDate</String>
@@ -343,16 +370,15 @@
           <String>$Rows</String>
           <String>$Fields</String>
           <String>$FieldNo</String>
-          <String>ZenDesk_Tickets_page</String>
-          <String>ZenDesk_Ticket_id</String>
-          <String>ZenDesk_Ticket_requester_id</String>
-          <String>ZenDesk_Ticket_submitter_id</String>
-          <String>ZenDesk_Ticket_assignee_id</String>
-          <String>ZenDesk_Ticket_organization_id</String>
-          <String>ZenDesk_Ticket_group_id</String>
-          <String>ZenDesk_Ticket_collaborator_ids</String>
-          <String>ZenDesk_Ticket_custom_fields_id</String>
-          <String>ZenDesk_Ticket_fields_id</String>
+          <String>id</String>
+          <String>requester_id</String>
+          <String>submitter_id</String>
+          <String>assignee_id</String>
+          <String>organization_id</String>
+          <String>group_id</String>
+          <String>brand_id</String>
+          <String>%Key_DATA_FA7EABD78875BA43</String>
+          <String>%Key_tickets_CD118827DB0DA346</String>
           <String>ZenDesk_Ticket_created_at_QVDate</String>
           <String>ZenDesk_Ticket_updated_at_QVDate</String>
         </FieldNames>

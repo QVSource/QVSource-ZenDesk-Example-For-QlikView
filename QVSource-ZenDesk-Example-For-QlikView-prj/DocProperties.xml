@@ -864,7 +864,7 @@
     </CalendarStrings>
   </LocaleInfo>
   <HasWorkingDirectory>true</HasWorkingDirectory>
-  <IsPurged>false</IsPurged>
+  <IsPurged>true</IsPurged>
   <Contact></Contact>
   <TimerPollInterval>1</TimerPollInterval>
   <BookmarkSortOrder>
@@ -879,7 +879,7 @@
       <int>3</int>
     </InterOrder>
   </BookmarkSortOrder>
-  <ScriptTabActiveTab>0</ScriptTabActiveTab>
+  <ScriptTabActiveTab>5</ScriptTabActiveTab>
   <ModuleSystemAccessIntended>0</ModuleSystemAccessIntended>
   <InhibitAggressiveQvdCleaning>false</InhibitAggressiveQvdCleaning>
   <Alerts></Alerts>
@@ -1290,15 +1290,11 @@
   <breakpointList>
     <EditorBreakpoint>
       <bufferName></bufferName>
-      <lineIx>59</lineIx>
+      <lineIx>162</lineIx>
     </EditorBreakpoint>
     <EditorBreakpoint>
       <bufferName></bufferName>
-      <lineIx>109</lineIx>
-    </EditorBreakpoint>
-    <EditorBreakpoint>
-      <bufferName></bufferName>
-      <lineIx>40</lineIx>
+      <lineIx>154</lineIx>
     </EditorBreakpoint>
   </breakpointList>
   <IdleSecondsBeforeClose>0</IdleSecondsBeforeClose>

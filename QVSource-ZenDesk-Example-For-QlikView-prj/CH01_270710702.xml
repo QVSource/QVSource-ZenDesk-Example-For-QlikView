@@ -220,7 +220,7 @@
   <_ExpressionDatas>
     <ExpressionData>
       <Definition>
-        <v>Count(ZenDesk_Ticket_id)</v>
+        <v>Count(ticket_id)</v>
       </Definition>
       <Enable>true</Enable>
       <Present>false</Present>
@@ -244,7 +244,7 @@
     </ExpressionData>
     <ExpressionData>
       <Definition>
-        <v>Count(ZenDesk_Ticket_id)</v>
+        <v>Count(id)</v>
       </Definition>
       <Enable>true</Enable>
       <Present>false</Present>
@@ -2964,7 +2964,7 @@
           <InternalId>-1</InternalId>
           <ExpressionData>
             <Definition>
-              <v>Count(ZenDesk_Ticket_id)</v>
+              <v>Count(ticket_id)</v>
             </Definition>
             <Enable>true</Enable>
             <Present>false</Present>
@@ -3438,7 +3438,7 @@
           <InternalId>-1</InternalId>
           <ExpressionData>
             <Definition>
-              <v>Count(ZenDesk_Ticket_id)</v>
+              <v>Count(id)</v>
             </Definition>
             <Enable>true</Enable>
             <Present>false</Present>

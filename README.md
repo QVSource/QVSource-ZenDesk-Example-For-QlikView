@@ -1,6 +1,6 @@
 ZenDesk Example App For QlikView
 ================================
-An example application showing how to get started using the [QVSource General Web Connector](http://wiki.qvsource.com/General-Web-Connector-For-QlikView.ashx) for QlikView configured for the ZenDesk API.
+An example application showing how to get started using the [QVSource General Web Connector](http://wiki.qvsource.com/General-Web-Connector-For-QlikView.ashx) for QlikView & Qlik Sense configured for the ZenDesk API.
 
 *Note that the [load script](https://github.com/QVSource/QVSource-ZenDesk-Example-For-QlikView/blob/master/QVSource-ZenDesk-Example-For-QlikView-prj/LoadScript.txt) should also work in Qlik Sense.*
 
@@ -13,6 +13,18 @@ Suggested improvements include:
 If you are a QlikView + QVSource user you can simply click the ["Download ZIP"] (https://github.com/QVSource/QVSource-ZenDesk-Example-For-QlikView/archive/master.zip) button on GitHub to grab this application.
 
 The content below is copied from the change log in the first tab of the load script.
+
+![](screenshot1.png)
+
+Change Log
+----------
+1.0.4 - 01/11/15
+----------------
+* Switched to using the Zendesk Incremental API (https://developer.zendesk.com/rest_api/docs/core/incremental_export#tickets) which is recommended 'To get a list of all tickets in your account' (see here - https://developer.zendesk.com/rest_api/docs/core/tickets#listing-tickets).
+* Also switched to using the JsonToXmlRaw table which makes it easier to get all the data in a single request.
+* Removed reference to an external credentials.txt file.
+* Added a MonthYear dimension.
+* Added variables to set load access token (for QVSource Web Edition) and app ID.
 
 1.0.3 - 07/09/15
 ----------------
